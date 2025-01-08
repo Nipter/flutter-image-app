@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "1088772958169",
+    "firebase_url": "https://testproject1-cda8a-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "testproject1-cda8a",
+    "storage_bucket": "testproject1-cda8a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1088772958169:android:761fa9bc6d526db85a5bc8",
+        "android_client_info": {
+          "package_name": "com.example.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhboGZe4vyl7TyBFgv_3hTc68DgEr7tRY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1088772958169:android:e012d40839efe0f65a5bc8",
+        "android_client_info": {
+          "package_name": "com.image.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhboGZe4vyl7TyBFgv_3hTc68DgEr7tRY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
