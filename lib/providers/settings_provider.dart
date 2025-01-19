@@ -1,16 +1,26 @@
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-//TODO: change type of Map<dynamic, dynamic> to typed correspondence from settings
-class SettingsNotifier extends StateNotifier<Map<dynamic, dynamic>> {
+class SettingsNotifier extends StateNotifier<Map<String, RemoteConfigValue>> {
   SettingsNotifier() : super({});
 
   Future<void> loadSettings() async {
-    //TODO: add logic to load settings from Remote Config (.env)
+    final remoteConfig = FirebaseRemoteConfig.instance;
+    await remoteConfig.setConfigSettings(RemoteConfigSettings(
+      fetchTimeout: const Duration(minutes: 1),
+      minimumFetchInterval: const Duration(hours: 1),
+    ));
+    await remoteConfig.fetchAndActivate();
+
+    state.addAll(remoteConfig.getAll());
+  }
+
+  Map<String, RemoteConfigValue> get settings {
+    return state;
   }
 }
 
-//TODO: change type of Map<dynamic, dynamic> to typed correspondence from settings
 final settingsProvider =
-    StateNotifierProvider<SettingsNotifier, Map<dynamic, dynamic>>((ref) {
+    StateNotifierProvider<SettingsNotifier, Map<String, RemoteConfigValue>>((ref) {
   return SettingsNotifier();
 });

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_viewer_app/assets.dart';
-import 'package:image_viewer_app/permissions/access_checker.dart';
 import 'package:image_viewer_app/providers/folders_provider.dart';
+import 'package:image_viewer_app/providers/settings_provider.dart';
 import 'package:image_viewer_app/screens/folders/add_folder_screen.dart';
 import 'package:image_viewer_app/widgets/container/background_container.dart';
 import 'package:image_viewer_app/widgets/container/loading_container.dart';
@@ -18,6 +18,7 @@ class FoldersScreen extends ConsumerStatefulWidget {
 class _FoldersScreenState extends ConsumerState<FoldersScreen> {
   bool _isLoading = false;
   List<dynamic> _folders = [];
+  bool _showAddFolderScreen = false;
 
   Future<void> _loadFolders() async {
     setState(() {
@@ -48,10 +49,40 @@ class _FoldersScreenState extends ConsumerState<FoldersScreen> {
     }
   }
 
+  Future<void> _loadSettings() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await ref.read(settingsProvider.notifier).loadSettings();
+
+      setState(() {
+        var settings = ref.read(settingsProvider.notifier).settings;
+        _showAddFolderScreen = settings[EnvironmentalVariables.featureAddFolder.variable]?.asBool() ?? false;
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'Could not load settings. Please try again or contact administrators.'),
+          ),
+        );
+      }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     _loadFolders();
+    _loadSettings();
   }
 
   @override
@@ -78,7 +109,7 @@ class _FoldersScreenState extends ConsumerState<FoldersScreen> {
         ),
       ),
       floatingActionButton:
-          isFeatureAvailable(EnvironmentalVariables.featureAddFolder.variable)
+          _showAddFolderScreen
               ? FloatingActionButton(
                   onPressed: () {
                     Navigator.of(context).push(

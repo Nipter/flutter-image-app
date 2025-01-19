@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:image_viewer_app/assets.dart';
+import 'package:image_viewer_app/providers/settings_provider.dart';
 import 'package:image_viewer_app/widgets/container/shadow_container.dart';
 
 enum ImageType { folderIcon, folderPreview, oryginalImage }
@@ -28,10 +29,9 @@ class ImageLoader extends ConsumerWidget {
     }
   }
 
-  Future<Uint8List> _fetchIconImage(double physicalWidth) async {
-    //TODO: get url from settingsProvider
+  Future<Uint8List> _fetchIconImage(double physicalWidth, String functionsUrl) async {
     String url =
-        'http://127.0.0.1:5001/testproject1-cda8a/us-central1/getResizedImage?pictureId=$imageCloudId&width=$physicalWidth';
+        '$functionsUrl/getResizedImage?pictureId=$imageCloudId&width=$physicalWidth';
     if (url.trim().isNotEmpty && imageCloudId!.trim().isNotEmpty) {
       try {
         final response = await http.get(
@@ -61,10 +61,13 @@ class ImageLoader extends ConsumerWidget {
     final double width = MediaQuery.of(context).size.width;
     final double pixelRatio = MediaQuery.of(context).devicePixelRatio;
     final double physicalWidth = width * pixelRatio;
+    var settings = ref.read(settingsProvider.notifier).settings;
+    String functionsUrl = settings[EnvironmentalVariables.functionsUrl.variable]?.asString() ?? "";
 
     return FutureBuilder<Uint8List>(
       future: _fetchIconImage(
         _getImagePhysicalWidth(physicalWidth),
+        functionsUrl
       ),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {

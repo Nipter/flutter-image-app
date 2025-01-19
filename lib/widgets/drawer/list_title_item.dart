@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:image_viewer_app/permissions/access_checker.dart';
 
 class ListTitleItem extends StatelessWidget {
   final String title;
-  final String? env;
+  final bool featureEnabled;
   final bool additionalShowCondition;
   final IconData iconData;
   final void Function() onTap;
@@ -11,7 +10,7 @@ class ListTitleItem extends StatelessWidget {
   const ListTitleItem({
     super.key,
     required this.title,
-    this.env,
+    this.featureEnabled = true,
     this.additionalShowCondition = true,
     required this.iconData,
     required this.onTap,
@@ -19,7 +18,7 @@ class ListTitleItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if ((env != null && !isFeatureAvailable(env)) || !additionalShowCondition) {
+    if (!featureEnabled || !additionalShowCondition) {
       return Container();
     }
 

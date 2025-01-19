@@ -7,6 +7,7 @@ import 'package:image_viewer_app/providers/users_provider.dart';
 import 'package:image_viewer_app/screens/tabs_screen.dart';
 import 'package:image_viewer_app/widgets/container/loading_container.dart';
 import 'package:image_viewer_app/widgets/drawer/list_title_item.dart';
+import 'package:image_viewer_app/providers/settings_provider.dart';
 import 'package:flutter/foundation.dart';
 
 class MainDrawer extends ConsumerStatefulWidget {
@@ -20,9 +21,40 @@ class MainDrawer extends ConsumerStatefulWidget {
 
 class _MainDrawerState extends ConsumerState<MainDrawer> {
   bool _isLoading = false;
-  bool _showAnalyticsScreen = true;
+  bool _showAnalyticsScreen = false;
+  bool _showAddImageScreen = false;
+  bool _showAddFolderScreen = false;
 
   Future<void> _loadSettings() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await ref.read(settingsProvider.notifier).loadSettings();
+
+      setState(() {
+        var settings = ref.read(settingsProvider.notifier).settings;
+        _showAddImageScreen = settings[EnvironmentalVariables.featureAddImage.variable]?.asBool() ?? false;
+        _showAddFolderScreen = settings[EnvironmentalVariables.featureAddFolder.variable]?.asBool() ?? false;
+        _showAnalyticsScreen = settings[EnvironmentalVariables.featureCheckAnalytics.variable]?.asBool() ?? false;
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'Could not load settings. Please try again or contact administrators.'),
+          ),
+        );
+      }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+
     setState(() {
       _isLoading = true;
     });
@@ -88,7 +120,7 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
             ),
             ListTitleItem(
               title: 'Add image',
-              env: EnvironmentalVariables.featureAddImage.variable,
+              featureEnabled: _showAddImageScreen,
               iconData: Icons.image_outlined,
               onTap: () {
                 widget.onSelectScreen(Screens.addImageScreen);
@@ -96,7 +128,7 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
             ),
             ListTitleItem(
               title: 'Add folder',
-              env: EnvironmentalVariables.featureAddFolder.variable,
+              featureEnabled: _showAddFolderScreen,
               iconData: Icons.create_new_folder_outlined,
               onTap: () {
                 widget.onSelectScreen(Screens.addFolderScreen);
@@ -105,7 +137,7 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
             if (_showAnalyticsScreen)
               ListTitleItem(
                 title: 'Analytics',
-                env: EnvironmentalVariables.featureCheckAnalytics.variable,
+                featureEnabled: _showAnalyticsScreen,
                 additionalShowCondition: kIsWeb,
                 iconData: Icons.analytics_outlined,
                 onTap: () {
