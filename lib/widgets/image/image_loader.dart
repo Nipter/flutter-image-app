@@ -32,7 +32,7 @@ class ImageLoader extends ConsumerWidget {
   Future<Uint8List> _fetchIconImage(double physicalWidth, String functionsUrl) async {
     String url =
         '$functionsUrl/getResizedImage?pictureId=$imageCloudId&width=$physicalWidth';
-    if (url.trim().isNotEmpty && imageCloudId!.trim().isNotEmpty) {
+    if (functionsUrl.trim().isNotEmpty && imageCloudId!.trim().isNotEmpty) {
       try {
         final response = await http.get(
           Uri.parse(url),

@@ -50,6 +50,7 @@ class _FoldersScreenState extends ConsumerState<FoldersScreen> {
   }
 
   Future<void> _loadSettings() async {
+    // TODO: maybe move it somewhere else
     setState(() {
       _isLoading = true;
     });
@@ -81,8 +82,8 @@ class _FoldersScreenState extends ConsumerState<FoldersScreen> {
   @override
   void initState() {
     super.initState();
-    _loadFolders();
     _loadSettings();
+    _loadFolders();
   }
 
   @override

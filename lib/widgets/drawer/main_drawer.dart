@@ -27,34 +27,11 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
 
   Future<void> _loadSettings() async {
     setState(() {
-      _isLoading = true;
+      var settings = ref.read(settingsProvider.notifier).settings;
+      _showAddImageScreen = settings[EnvironmentalVariables.featureAddImage.variable]?.asBool() ?? false;
+      _showAddFolderScreen = settings[EnvironmentalVariables.featureAddFolder.variable]?.asBool() ?? false;
+      _showAnalyticsScreen = settings[EnvironmentalVariables.featureCheckAnalytics.variable]?.asBool() ?? false;
     });
-
-    try {
-      await ref.read(settingsProvider.notifier).loadSettings();
-
-      setState(() {
-        var settings = ref.read(settingsProvider.notifier).settings;
-        _showAddImageScreen = settings[EnvironmentalVariables.featureAddImage.variable]?.asBool() ?? false;
-        _showAddFolderScreen = settings[EnvironmentalVariables.featureAddFolder.variable]?.asBool() ?? false;
-        _showAnalyticsScreen = settings[EnvironmentalVariables.featureCheckAnalytics.variable]?.asBool() ?? false;
-      });
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                'Could not load settings. Please try again or contact administrators.'),
-          ),
-        );
-      }
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-
     setState(() {
       _isLoading = true;
     });
@@ -134,7 +111,6 @@ class _MainDrawerState extends ConsumerState<MainDrawer> {
                 widget.onSelectScreen(Screens.addFolderScreen);
               },
             ),
-            if (_showAnalyticsScreen)
               ListTitleItem(
                 title: 'Analytics',
                 featureEnabled: _showAnalyticsScreen,

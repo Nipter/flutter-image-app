@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_viewer_app/providers/settings_provider.dart';
 import 'package:image_viewer_app/providers/users_provider.dart';
 import 'package:image_viewer_app/screens/analytics_screen.dart';
 import 'package:image_viewer_app/screens/folders/add_folder_screen.dart';
@@ -51,28 +50,6 @@ class _TabsScreen extends ConsumerState<TabsScreen> {
   }
 
   Future<void> _loadSettings() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      await ref.read(settingsProvider.notifier).loadSettings();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                'Could not load settings. Please try again or contact administrators.'),
-          ),
-        );
-      }
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-
     setState(() {
       _isLoading = true;
     });
