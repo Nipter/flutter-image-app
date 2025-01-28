@@ -14,7 +14,7 @@ import 'package:image_viewer_app/widgets/image/image_loader.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io' as io;
-import 'dart:html' as html;
+import 'package:universal_html/html.dart' as html;
 
 class EditImageScreen extends ConsumerStatefulWidget {
   final ImageModel image;
