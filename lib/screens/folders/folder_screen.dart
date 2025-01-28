@@ -11,34 +11,87 @@ import 'package:image_viewer_app/widgets/container/shadow_container.dart';
 
 import 'package:image_viewer_app/widgets/image/image_loader.dart';
 
-class FolderScreen extends StatelessWidget {
+class FolderScreen extends StatefulWidget {
   final FolderModel folder;
 
   const FolderScreen({super.key, required this.folder});
+
+  @override
+  State<FolderScreen> createState() => _FolderScreenState();
+}
+
+class _FolderScreenState extends State<FolderScreen> {
+  String _searchQuery = "";
+  late List<ImageModel> _searchImages;
 
   void onDoubleTap(ImageModel image, BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (ctx) => EditImageScreen(
           image: image,
-          folder: folder,
+          folder: widget.folder,
         ),
       ),
     );
+  }
+
+  void onSearchButton(String text) {
+    setState(() {
+      _searchImages = widget.folder.images
+          .where((image) => image.name.contains(_searchQuery))
+          .toList();
+
+      print(_searchImages.length);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _searchImages = widget.folder.images;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(folder.name),
+        title: Text(widget.folder.name),
+        flexibleSpace: Align(
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 250,
+                child: TextField(
+                  onChanged: (text) {
+                    _searchQuery = text;
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Search...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(Icons.search),
+                onPressed: () {
+                  onSearchButton(_searchQuery);
+                },
+              ),
+            ],
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (ctx) => EditFolderScreen(
-                        folder: folder,
+                        folder: widget.folder,
                       )));
             },
           ),
@@ -54,20 +107,35 @@ class FolderScreen extends StatelessWidget {
               crossAxisSpacing: 20.0,
               mainAxisSpacing: 20.0,
             ),
-            itemCount: folder.images.length,
+            itemCount: _searchImages.length,
             itemBuilder: (context, index) {
-              return ShadowContainer(
-                child: GestureDetector(
-                  onDoubleTap: () {
-                    onDoubleTap(folder.images[index], context);
-                  },
-                  child: ImageLoader(
-                    imageType: ImageType.folderPreview,
-                    imageCloudId: folder.images.isNotEmpty
-                        ? folder.images[index].imageCloudId
-                        : '',
+              return Column(
+                children: [
+                  Expanded(
+                    child: ShadowContainer(
+                      child: GestureDetector(
+                        onDoubleTap: () {
+                          onDoubleTap(_searchImages[index], context);
+                        },
+                        child: ImageLoader(
+                          imageType: ImageType.folderPreview,
+                          imageCloudId: _searchImages.isNotEmpty
+                              ? _searchImages[index].imageCloudId
+                              : '',
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                  Text(
+                    _searchImages[index].name.substring(
+                        0, _searchImages[index].name.lastIndexOf('.')),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               );
             },
           ),
@@ -80,7 +148,7 @@ class FolderScreen extends StatelessWidget {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (ctx) => AddImageScreen(
-                          folder: folder,
+                          folder: widget.folder,
                         ),
                       ),
                     );

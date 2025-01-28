@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_viewer_app/assets.dart';
 import 'package:image_viewer_app/widgets/container/shadow_container.dart';
 
-enum ImageType { folderIcon, folderPreview, oryginalImage }
+enum ImageType { folderIcon, folderPreview, screenSize, oryginalImage }
 
 class ImageLoader extends ConsumerWidget {
   final String? imageCloudId;
@@ -17,7 +17,12 @@ class ImageLoader extends ConsumerWidget {
 
   static Uint8List? _cachedEmptyImage;
 
-  double _getImagePhysicalWidth(double physicalWidth) {
+  static double _getImagePhysicalWidth(
+      BuildContext context, ImageType imageType) {
+    final double width = MediaQuery.of(context).size.width;
+    final double pixelRatio = MediaQuery.of(context).devicePixelRatio;
+    final double physicalWidth = width * pixelRatio;
+
     switch (imageType) {
       case ImageType.folderIcon:
         return physicalWidth / 8;
@@ -25,10 +30,14 @@ class ImageLoader extends ConsumerWidget {
         return physicalWidth / 4;
       case ImageType.oryginalImage:
         return physicalWidth;
+      case ImageType.screenSize:
+        return 0;
     }
   }
 
-  Future<Uint8List> _fetchIconImage(double physicalWidth) async {
+  static Future<Uint8List> fetchImage(
+      BuildContext context, String? imageCloudId, ImageType imageType) async {
+    double physicalWidth = _getImagePhysicalWidth(context, imageType);
     //TODO: get url from settingsProvider
     String url =
         'http://127.0.0.1:5001/testproject1-cda8a/us-central1/getResizedImage?pictureId=$imageCloudId&width=$physicalWidth';
@@ -58,14 +67,8 @@ class ImageLoader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final double width = MediaQuery.of(context).size.width;
-    final double pixelRatio = MediaQuery.of(context).devicePixelRatio;
-    final double physicalWidth = width * pixelRatio;
-
     return FutureBuilder<Uint8List>(
-      future: _fetchIconImage(
-        _getImagePhysicalWidth(physicalWidth),
-      ),
+      future: fetchImage(context, imageCloudId, imageType),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
