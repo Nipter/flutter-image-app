@@ -59,7 +59,7 @@ exports.getResizedImage = functions.https.onRequest( async (req, res) => {
 
         const imageBuffer = await downloadImageFromStorage(pictureId);
 
-        const scaledImage = await scaleImage(imageBuffer, width);
+        const scaledImage = width == 0 ? imageBuffer : await scaleImage(imageBuffer, width);
 
         res.set('Content-Type', 'image/png');
         res.send(scaledImage);

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_viewer_app/constants.dart';
@@ -11,6 +12,9 @@ import 'package:image_viewer_app/widgets/container/constrained_container.dart';
 import 'package:image_viewer_app/widgets/container/loading_container.dart';
 import 'package:image_viewer_app/widgets/image/image_loader.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io' as io;
+import 'package:universal_html/html.dart' as html;
 
 class EditImageScreen extends ConsumerStatefulWidget {
   final ImageModel image;
@@ -141,29 +145,83 @@ class _EditImageScreenState extends ConsumerState<EditImageScreen> {
     super.initState();
   }
 
+  Future<void> downloadImage(BuildContext context, ImageModel image) async {
+    try {
+      final imageBytes = await ImageLoader.fetchImage(
+          context, image.imageCloudId, ImageType.oryginalImage);
+
+      if (kIsWeb) {
+        final blob = html.Blob([imageBytes]);
+        final url = html.Url.createObjectUrlFromBlob(blob);
+
+        final anchor = html.AnchorElement(href: url)
+          ..target = 'blank'
+          ..download = image.name;
+        anchor.click();
+
+        html.Url.revokeObjectUrl(url);
+      } else {
+        final directory = await getApplicationDocumentsDirectory();
+        final filePath = '${directory.path}/${image.name}';
+        final file = io.File(filePath);
+        await file.writeAsBytes(imageBytes);
+      }
+    } catch (e) {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: const Text(
+                  'Error while downloading image. Please try again or contact administrators.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<Widget>? actions = [
+      IconButton(
+        icon: const Icon(Icons.download_outlined),
+        onPressed: () {
+          downloadImage(context, widget.image);
+        },
+      )
+    ];
+
+    if (!widget.allowToEdit) {
+      actions.add(IconButton(
+        icon: const Icon(Icons.edit_outlined),
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (ctx) => EditImageScreen(
+                folder: widget.folder,
+                image: widget.image,
+                allowToEdit: true,
+              ),
+            ),
+          );
+        },
+      ));
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Image details"),
-        actions: !widget.allowToEdit
-            ? [
-                IconButton(
-                  icon: const Icon(Icons.edit_outlined),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (ctx) => EditImageScreen(
-                          folder: widget.folder,
-                          image: widget.image,
-                          allowToEdit: true,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ]
-            : null,
+        actions: actions,
       ),
       body: BackgroundContainer(
         child: LoadingContainer(
@@ -178,7 +236,7 @@ class _EditImageScreenState extends ConsumerState<EditImageScreen> {
                     SizedBox(
                       height: 400,
                       child: ImageLoader(
-                          imageType: ImageType.oryginalImage,
+                          imageType: ImageType.screenSize,
                           imageCloudId: widget.image.imageCloudId),
                     ),
                     const SizedBox(
