@@ -12,8 +12,9 @@ enum ImageType { folderIcon, folderPreview, screenSize, oryginalImage }
 class ImageLoader extends ConsumerWidget {
   final String? imageCloudId;
   final ImageType imageType;
+  static String functionsUrl="";
 
-  const ImageLoader(
+ const ImageLoader(
       {super.key, this.imageCloudId = "", required this.imageType});
 
   static Uint8List? _cachedEmptyImage;
@@ -37,7 +38,7 @@ class ImageLoader extends ConsumerWidget {
   }
 
   static Future<Uint8List> fetchImage(
-      BuildContext context, String? imageCloudId, ImageType imageType, String functionsUrl) async {
+      BuildContext context, String? imageCloudId, ImageType imageType) async {
     double physicalWidth = _getImagePhysicalWidth(context, imageType);
     String url =
         '$functionsUrl/getResizedImage?pictureId=$imageCloudId&width=$physicalWidth';
@@ -68,9 +69,9 @@ class ImageLoader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var settings = ref.read(settingsProvider.notifier).settings;
-    String functionsUrl = settings[EnvironmentalVariables.functionsUrl.variable]?.asString() ?? "";
+    functionsUrl = settings[EnvironmentalVariables.functionsUrl.variable]?.asString() ?? "";
     return FutureBuilder<Uint8List>(
-      future: fetchImage(context, imageCloudId, imageType, functionsUrl),
+      future: fetchImage(context, imageCloudId, imageType),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
