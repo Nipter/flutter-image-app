@@ -27,9 +27,9 @@ class ImageLoader extends ConsumerWidget {
 
     switch (imageType) {
       case ImageType.folderIcon:
-        return physicalWidth / 8;
+        return physicalWidth / 16;
       case ImageType.folderPreview:
-        return physicalWidth / 4;
+        return physicalWidth / 12;
       case ImageType.oryginalImage:
         return physicalWidth;
       case ImageType.screenSize:

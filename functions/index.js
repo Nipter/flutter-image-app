@@ -5,6 +5,8 @@ const admin = require("firebase-admin");
 const sharp = require("sharp");
 const fs = require("fs");
 const path = require("path");
+const cors = require('cors');
+
 
 
 admin.initializeApp({
@@ -50,21 +52,26 @@ const scaleImage = async (imageBuffer, width) => {
 
 
 exports.getResizedImage = functions.https.onRequest( async (req, res) => {
-    try {
-        const { pictureId, width } = req.query;
+    const corsHandler = cors({ origin: true }); // Allow all origins, or specify your origin
+    corsHandler(req, res, async () => {
 
-        if (!pictureId || !width) {
-            return res.status(400).send("Missing pictureId or width parameters.");
+        try {
+            const { pictureId, width } = req.query;
+
+            if (!pictureId || !width) {
+                return res.status(400).send("Missing pictureId or width parameters.");
+            }
+
+            const imageBuffer = await downloadImageFromStorage(pictureId);
+
+            const scaledImage = width == 0 ? imageBuffer : await scaleImage(imageBuffer, width);
+
+            res.set('Content-Type', 'image/png');
+            res.send(scaledImage);
+        } catch (error) {
+            console.error("Error processing image:", error);
+            res.status(500).send("Internal server error.");
         }
+    });
 
-        const imageBuffer = await downloadImageFromStorage(pictureId);
-
-        const scaledImage = width == 0 ? imageBuffer : await scaleImage(imageBuffer, width);
-
-        res.set('Content-Type', 'image/png');
-        res.send(scaledImage);
-    } catch (error) {
-        console.error("Error processing image:", error);
-        res.status(500).send("Internal server error.");
-    }
 });

@@ -105,30 +105,33 @@ final foldersProvider =
   return FoldersNotifier();
 });
 
-//TODO: nie wiem czy analytics sie nie pokazuje po utworzeniu konta usera, dokładniej przy próbie wylogowania to się dzieje
 final preparedFoldersProvider = Provider<List<FolderModel>>((ref) {
-  //final users = ref.watch(usersProvider);
+  final users = ref.watch(usersProvider);
   final folders = ref.watch(foldersProvider);
 
   return folders.map((folder) {
-    //final createdByUser =
-    //    users.firstWhere((user) => user.id == folder.createdBy);
-    //final updatedByUser = folder.createdBy == folder.updatedBy
-    //    ? createdByUser
-    //    : users.firstWhere((user) => user.id == folder.updatedBy);
-    //
-    //folder.createdBy = createdByUser.username;
-    //folder.updatedBy = updatedByUser.username;
+    final createdByUser =
+        users.where((user) => user.id == folder.createdBy).toList();
+    final updatedByUser = folder.createdBy == folder.updatedBy
+        ? createdByUser
+        : users.where((user) => user.id == folder.updatedBy).toList();
+
+    if (!createdByUser.isEmpty && !updatedByUser.isEmpty) {
+    folder.createdBy = createdByUser[0].username;
+    folder.updatedBy = updatedByUser[0].username;
+    }
 
     folder.images = folder.images.map((image) {
-      //final createdByUser =
-      //    users.firstWhere((user) => user.id == image.createdBy);
-      //final updatedByUser = image.createdBy == image.updatedBy
-      //    ? createdByUser
-      //    : users.firstWhere((user) => user.id == image.updatedBy);
-      //
-      //image.createdBy = createdByUser.username;
-      //image.updatedBy = updatedByUser.username;
+      final createdByUser =
+          users.where((user) => user.id == image.createdBy).toList();
+      final updatedByUser = image.createdBy == image.updatedBy
+          ? createdByUser
+          : users.where((user) => user.id == image.updatedBy).toList();
+
+    if (!createdByUser.isEmpty && !updatedByUser.isEmpty) {
+      image.createdBy = createdByUser[0].username;
+      image.updatedBy = updatedByUser[0].username;
+    }
       return image;
     }).toList();
     return folder;

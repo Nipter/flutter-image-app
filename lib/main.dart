@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-//import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_viewer_app/firebase_options.dart';
@@ -12,10 +11,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-
-/// Initialize the [FlutterLocalNotificationsPlugin] package.
-//late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 
 Future<void> main() async {
@@ -24,7 +19,6 @@ Future<void> main() async {
 
 
   await Firebase.initializeApp(
-    name: "zaliczenie-pl-kl",
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
@@ -34,19 +28,6 @@ Future<void> main() async {
     FirebaseStorage.instance.useStorageEmulator('127.0.0.1', 9199);
   }
 
-  // subscribe to topic on each app start-up
-  //await FirebaseMessaging.instance.subscribeToTopic('errors');
-  //  //opened from terminated state
-  //      FirebaseMessaging.instance.getInitialMessage().then(
-  //        (value) => print(value),
-  //      );
-  //
-  //
-  //  // listen to messages when app is in the foreground
-  //  FirebaseMessaging.onMessage.listen(_handleMessageForeground);
-  //
-  //  //opened from from background
-  //  FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
 
 
   runApp(
@@ -55,12 +36,6 @@ Future<void> main() async {
     ),
   );
 }
-  void _handleMessage(RemoteMessage message) {
-    print("background: " + message.toString());
-  }
-  void _handleMessageForeground(RemoteMessage message) {
-    print("foreground: " + message.toString());
-  }
 
 
 class MyApp extends StatelessWidget {

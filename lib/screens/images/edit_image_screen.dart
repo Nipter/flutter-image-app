@@ -343,6 +343,18 @@ class _EditImageScreenState extends ConsumerState<EditImageScreen> {
                     const SizedBox(
                       height: 20,
                     ),
+                    if (widget.image.metadata != "null") 
+                      TextField(
+                        controller:
+                            TextEditingController(text: widget.image.metadata),
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Metadata',
+                        ),
+                      ),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     if (widget.allowToEdit)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,

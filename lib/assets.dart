@@ -12,7 +12,8 @@ enum EnvironmentalVariables {
   featureAddImage("FEATURE_ADD_IMAGE"),
   featureAddFolder("FEATURE_ADD_FOLDER"),
   featureCheckAnalytics("FEATURE_CHECK_ANALYTICS"),
-  functionsUrl("FUNCTIONS_URL");
+  functionsUrl("FUNCTIONS_URL"),
+  monitoringUrl("MONITORING_URL");
 
   final String variable;
 

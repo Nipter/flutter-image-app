@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ImageModel {
@@ -8,6 +10,7 @@ class ImageModel {
   final DateTime updatedAt;
   String createdBy;
   String updatedBy;
+  String metadata;
 
   ImageModel({
     required this.id,
@@ -17,11 +20,13 @@ class ImageModel {
     required this.updatedAt,
     required this.createdBy,
     required this.updatedBy,
+    required this.metadata,
   });
 
   factory ImageModel.fromFirestore(DocumentSnapshot doc) {
     var data = doc.data() as Map<String, dynamic>;
 
+          
     return ImageModel(
       id: doc.id,
       imageCloudId: data['imageCloudId'],
@@ -30,6 +35,7 @@ class ImageModel {
       updatedAt: DateTime.fromMillisecondsSinceEpoch(data['updatedAt']),
       createdBy: data['createdBy'],
       updatedBy: data['updatedBy'],
+      metadata: data['metadata'].toString(),
     );
   }
 }
